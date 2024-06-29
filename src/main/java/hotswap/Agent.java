@@ -19,7 +19,7 @@ import java.util.Optional;
  **/
 public class Agent {
 
-    private static byte[] getBytes(String filePath,Method log) throws InvocationTargetException, IllegalAccessException {
+    private static byte[] getBytes(String filePath) throws InvocationTargetException, IllegalAccessException {
 
         byte[] buffer = null;
         try {
@@ -33,12 +33,10 @@ public class Agent {
             }
             fis.close();
             bos.close();
-            log.invoke(null, file.lastModified());
             buffer = bos.toByteArray();
         } catch (IOException e) {
             StringWriter error = new StringWriter();
             e.printStackTrace(new PrintWriter(error));
-            log.invoke(null, error.toString());
         }
         return buffer;
     }
@@ -67,15 +65,20 @@ public class Agent {
             Class<?> console = getClazz("hotswap.Console",instrumentation);
             Method log = console.getMethod("log", String.class);
             log.invoke(null,"start");
-
-            byte[] bytes = getBytes(filePath, log);
+            log.invoke(null,"arg:"+arg);
+            log.invoke(null,"classPath:"+classPath);
+            log.invoke(null,"filePath:"+filePath);
+            byte[] bytes = getBytes(filePath);
 //            log.invoke(null,new String(bytes));
 //            System.out.println("bytes = " + bytes);
             Class<?> toSwap = getClazz(classPath,instrumentation);
 //            System.out.println("toSwap = " + toSwap);
             instrumentation.redefineClasses();
             ClassDefinition classDefinition = new ClassDefinition(toSwap, bytes);
+            log.invoke(null,"start");
             instrumentation.redefineClasses(classDefinition);
+            log.invoke(null,"start");
+            log.invoke(null,(String.valueOf(isVirtual)));
             if (isVirtual) {
                 Class<?> clazz = getClazz(classPath,instrumentation);
                 Object versionControl = clazz.getConstructor().newInstance();
