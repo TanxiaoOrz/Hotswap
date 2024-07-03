@@ -31,6 +31,7 @@ public class Agent {
         try {
             Class<?> console = getClazz("hotswap.Console",instrumentation);
             Method log = console.getMethod("log", String.class);
+            log.invoke(null,"start");
 
             try {
                 Class<?> proxy = getClazz("hotswap.AgentProxy", instrumentation);
@@ -39,6 +40,7 @@ public class Agent {
                 log.invoke(null, "初始化完成");
             }catch (Exception e) {
                 log.invoke(null,e.getMessage());
+                throw e;
             }
         } catch (Exception e) {
             e.printStackTrace();
