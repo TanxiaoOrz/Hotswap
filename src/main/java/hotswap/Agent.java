@@ -32,12 +32,14 @@ public class Agent {
             Class<?> console = getClazz("hotswap.Console",instrumentation);
             Method log = console.getMethod("log", String.class);
 
-            Class<?> proxy = getClazz("hotswap.AgentProxy",instrumentation);
-            Method setInstrumentation = proxy.getMethod("setInstrumentation",Instrumentation.class);
-            Method setReady = proxy.getMethod("setReady", Boolean.class);
-
-            setInstrumentation.invoke(null,instrumentation);
-            setReady.invoke(null,new Boolean(true));
+            try {
+                Class<?> proxy = getClazz("hotswap.AgentProxy", instrumentation);
+                Method setInstrumentation = proxy.getMethod("setInstrumentation", Instrumentation.class);
+                setInstrumentation.invoke(null, instrumentation);
+                log.invoke(null, "初始化完成");
+            }catch (Exception e) {
+                log.invoke(null,e.getMessage());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
